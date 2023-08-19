@@ -7,18 +7,18 @@ const Board = () => {
     const [flip, setFlip] = useState(false);
     const [boardStyling, setBoardStyling] = useState('rotateAnimationWhite 2s forwards');
 
-  const [pieces, setPieces] = useState(
-    [
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, { type: 'Q', color: 'black' }, { type: 'K', color: 'black' }, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, { type: 'K', color: 'white' }, { type: 'Q', color: 'white' }, null, null, null],
-        [null, null, null, null, null, null, null, null],
-    ]
-);
+    const [pieces, setPieces] = useState(
+        [
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, { icon: '\u265B', type: 'Q', color: 'black' }, { icon: '\u265E', type: 'K', color: 'black' }, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, { icon: '\u2658', type: 'K', color: 'white' }, { icon: '\u2655', type: 'Q', color: 'white' }, null, null, null],
+            [null, null, null, null, null, null, null, null],
+        ]
+    );
 
     useEffect(() => {
         if (flip === false) {
