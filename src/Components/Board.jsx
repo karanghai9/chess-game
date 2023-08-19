@@ -6,6 +6,7 @@ const Board = () => {
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [flip, setFlip] = useState(false);
     const [boardStyling, setBoardStyling] = useState('rotateAnimationWhite 2s forwards');
+    const [validPaths, setValidPaths] = useState([]);
 
     const [pieces, setPieces] = useState(
         [
@@ -27,15 +28,45 @@ const Board = () => {
         else setBoardStyling('rotateAnimationBlack 2s forwards')
     }, [flip]);
 
+    const getQueenMoves = (row, col) => {
+        const validMoves = [];
+        return validMoves;
+    };
+
+    const getKnightMoves = (row, col) => {
+        const validMoves = [];
+    
+        const possibleMoves = [
+            [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+            [1, -2], [1, 2], [2, -1], [2, 1]
+        ];
+    
+        possibleMoves.forEach(([rowOffset, colOffset]) => {
+            const newRow = row + rowOffset;
+            const newCol = col + colOffset;
+            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                validMoves.push([newRow, newCol]);
+            }
+        });
+    
+        return validMoves;
+    };
+
     const handleSquareClick = (row, col) => {
         if (!selectedPiece) {
             if (pieces[row][col]) {
               setSelectedPiece({ row, col });
+              const selectedPieceType = pieces[row][col]?.type;
+                if (selectedPieceType) {
+                    const validPaths = selectedPieceType === 'Q' ? getQueenMoves(row, col) : selectedPieceType === 'K' ? getKnightMoves(row, col) : [];
+                    setValidPaths(validPaths);
+                }
             }
             return;
         }
         if (row === selectedPiece.row && col === selectedPiece.col) {
             setSelectedPiece(null);
+            setValidPaths([]);
             return;
         }
     };
@@ -47,6 +78,7 @@ const Board = () => {
             col={col}
             piece={piece}
             selectedPiece={selectedPiece}
+            validPaths={validPaths}
             onClick={handleSquareClick}
         />
     };
