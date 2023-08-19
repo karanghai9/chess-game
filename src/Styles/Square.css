@@ -8,3 +8,20 @@
     cursor: pointer;
     margin: 1px;
 }
+
+.chess-piece {
+    font-size: 2.5rem;
+    display: inline-block;
+}
+
+.black {
+    color: black;
+    transform: rotate(90deg);
+    background-color: transparent;
+}
+
+.white {
+    color: white;
+    transform: rotate(270deg);
+    background-color: transparent;
+}
