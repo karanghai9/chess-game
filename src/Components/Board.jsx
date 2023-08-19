@@ -27,12 +27,27 @@ const Board = () => {
         else setBoardStyling('rotateAnimationBlack 2s forwards')
     }, [flip]);
 
+    const handleSquareClick = (row, col) => {
+        if (!selectedPiece) {
+            if (pieces[row][col]) {
+              setSelectedPiece({ row, col });
+            }
+            return;
+        }
+        if (row === selectedPiece.row && col === selectedPiece.col) {
+            setSelectedPiece(null);
+            return;
+        }
+    };
+
     const renderSquare = (row, col, piece) => {
         return <Square
             key={`${row}-${col}`}
             row={row}
             col={col}
             piece={piece}
+            selectedPiece={selectedPiece}
+            onClick={handleSquareClick}
         />
     };
 

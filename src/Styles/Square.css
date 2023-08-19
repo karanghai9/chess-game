@@ -25,3 +25,7 @@
     transform: rotate(270deg);
     background-color: transparent;
 }
+
+.square.selected {
+    background-color: orange !important;
+}

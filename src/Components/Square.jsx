@@ -1,7 +1,8 @@
 import React from 'react';
 import '../Styles/Square.css';
 
-const Square = ({ row, col, piece }) => {
+const Square = ({ row, col, piece, selectedPiece, onClick }) => {
+  const isSelected = selectedPiece && selectedPiece.row === row && selectedPiece.col === col;
 
   const renderPiece = () => {
     if (piece) {
@@ -15,7 +16,9 @@ const Square = ({ row, col, piece }) => {
   };
 
   return (
-    <div className={"square"}>
+    <div className={`square ${isSelected ? 'selected' : ''}`}
+      onClick={() => onClick(row, col)}
+    >
       {renderPiece()}
     </div>
   );
