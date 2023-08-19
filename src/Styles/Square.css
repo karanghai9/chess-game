@@ -29,3 +29,7 @@
 .square.selected {
     background-color: orange !important;
 }
+
+.square.valid-path {
+    background-color: lightgreen !important;
+}
