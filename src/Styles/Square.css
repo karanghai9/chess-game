@@ -33,3 +33,7 @@
 .square.valid-path {
     background-color: lightgreen !important;
 }
+
+.square.removablePiece {
+    background-color: red !important;
+}
