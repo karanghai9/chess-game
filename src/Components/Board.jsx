@@ -30,6 +30,36 @@ const Board = () => {
 
     const getQueenMoves = (row, col) => {
         const validMoves = [];
+
+        // Horizontal moves
+        for (let i = col + 1; i < 8; i++) {
+            validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+        }
+        for (let i = col - 1; i >= 0; i--) {
+            validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+        }
+
+        // Vertical moves
+        for (let i = row + 1; i < 8; i++) {
+            validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+        }
+        for (let i = row - 1; i >= 0; i--) {
+            validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+        }
+
+        // Diagonal moves
+        for (let rowOffset = -1; rowOffset <= 1; rowOffset += 2) { //we need to add +1 and -1 in current row pos
+            for (let colOffset = -1; colOffset <= 1; colOffset += 2) { //we need to add +1 and -1 in current col pos
+                let newRow = row + rowOffset; //finding new indices of rows with +1 and -1
+                let newCol = col + colOffset; //finding new indices of cols with +1 and -1
+                while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) { //to limit the indices within 8*8 matrix
+                    validMoves.push([newRow, newCol]);
+                    newRow += rowOffset;
+                    newCol += colOffset;
+                }
+            }
+        }
+
         return validMoves;
     };
 
@@ -53,7 +83,7 @@ const Board = () => {
     };
 
     const handleSquareClick = (row, col) => {
-        if (!selectedPiece) {
+        if (!selectedPiece) { //if there exists no pre-selected piece
             if (pieces[row][col]) {
               setSelectedPiece({ row, col });
               const selectedPieceType = pieces[row][col]?.type;
@@ -64,7 +94,7 @@ const Board = () => {
             }
             return;
         }
-        if (row === selectedPiece.row && col === selectedPiece.col) {
+        if (row === selectedPiece.row && col === selectedPiece.col) {  //if we've clicked the already selected piece again
             setSelectedPiece(null);
             setValidPaths([]);
             return;
