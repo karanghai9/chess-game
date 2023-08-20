@@ -82,6 +82,58 @@ const Board = () => {
         return validMoves;
     };
 
+    const isPathClear = (fromRow, fromCol, toRow, toCol, direction) => {
+        const rowStep = Math.sign(toRow - fromRow);
+        const colStep = Math.sign(toCol - fromCol);
+
+        let currentRow = fromRow + rowStep;
+        let currentCol = fromCol + colStep;
+
+        while (currentRow !== toRow || currentCol !== toCol) {
+            if (pieces[currentRow][currentCol]) {
+                return false; // Found a piece in the path, so exit.
+            }
+
+            if (direction === 'horizontal') {
+                currentCol += colStep;
+            } else if (direction === 'vertical') {
+                currentRow += rowStep;
+            } else if (direction === 'diagonal') {
+                currentRow += rowStep;
+                currentCol += colStep;
+            }
+        }
+        return true; // Path is clear
+    };
+
+    const isMoveValid = (fromRow, fromCol, toRow, toCol, selectedPieceType) => {
+        const rowDiff = Math.abs(toRow - fromRow);
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if (selectedPieceType === 'K') { // for knight
+            if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
+                if(pieces[toRow][toCol]) {
+                    return false; //Square is already occupied by a piece
+                }
+                return true; //Square is unoccupied
+            }
+            return false; //Selected square doesn't lie inside the path
+        }
+        else if (selectedPieceType === 'Q') { //for queen
+            if (
+                (fromRow === toRow && isPathClear(fromRow, fromCol, toRow, toCol, 'horizontal')) ||
+                (fromCol === toCol && isPathClear(fromRow, fromCol, toRow, toCol, 'vertical')) ||
+                (rowDiff === colDiff && isPathClear(fromRow, fromCol, toRow, toCol, 'diagonal'))
+            ){
+                if(pieces[toRow][toCol]) {
+                    return false; //Square is already occupied by a piece
+                }
+                return true; //Square is unoccupied
+            }
+            return false; //Selected square doesn't lie inside the path
+        }
+    };
+
     const handleSquareClick = (row, col) => {
         if (!selectedPiece) { //if there exists no pre-selected piece
             if (pieces[row][col]) {
@@ -99,12 +151,19 @@ const Board = () => {
             setValidPaths([]);
             return;
         }
-        const newPieces = [...pieces];
-        newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
-        newPieces[selectedPiece.row][selectedPiece.col] = null;
-        setPieces(newPieces);
-        setSelectedPiece(null);
-        setValidPaths([]);
+        const selectedPieceType = pieces[selectedPiece.row][selectedPiece.col]?.type;
+        if (isMoveValid(selectedPiece.row, selectedPiece.col, row, col, selectedPieceType) && selectedPieceType) {
+            const newPieces = [...pieces];
+            newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
+            newPieces[selectedPiece.row][selectedPiece.col] = null;
+            setPieces(newPieces);
+            setSelectedPiece(null);
+            setValidPaths([]);
+        }
+        else{
+            setSelectedPiece(null);
+            setValidPaths([]);
+        }
     };
 
     const renderSquare = (row, col, piece) => {
