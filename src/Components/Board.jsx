@@ -8,6 +8,7 @@ const Board = () => {
     const [boardStyling, setBoardStyling] = useState('rotateAnimationWhite 2s forwards');
     const [validPaths, setValidPaths] = useState([]);
     const [turn, setTurn] = useState('white');
+    const [canRemovePieces, setcanRemovePieces] = useState([]);
 
     const [pieces, setPieces] = useState(
         [
@@ -31,21 +32,54 @@ const Board = () => {
 
     const getQueenMoves = (row, col) => {
         const validMoves = [];
+        const canRemovePieceArr = [];
 
         // Horizontal moves
         for (let i = col + 1; i < 8; i++) {
-            validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+            if (!pieces[row][i]) {
+                validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+            }
+            else {
+                if (pieces[row][i].color !== turn) {
+                    canRemovePieceArr.push([row, i]);
+                }
+                break;
+            }
         }
         for (let i = col - 1; i >= 0; i--) {
-            validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+            if (!pieces[row][i]) {
+                validMoves.push([row, i]); //Row would be fixed and all col values will be pushed.
+            }
+            else {
+                if (pieces[row][i].color !== turn) {
+                    canRemovePieceArr.push([row, i]);
+                }
+                break;
+            }
         }
 
         // Vertical moves
         for (let i = row + 1; i < 8; i++) {
-            validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+            if (!pieces[i][col]) {
+                validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+            }
+            else {
+                if (pieces[i][col].color !== turn) {
+                    canRemovePieceArr.push([i, col]);
+                }
+                break;
+            }
         }
         for (let i = row - 1; i >= 0; i--) {
-            validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+            if (!pieces[i][col]) {
+                validMoves.push([i, col]); //Col would be fixed and all row values will be pushed.
+            }
+            else {
+                if (pieces[i][col].color !== turn) {
+                    canRemovePieceArr.push([i, col]);
+                }
+                break;
+            }
         }
 
         // Diagonal moves
@@ -54,13 +88,21 @@ const Board = () => {
                 let newRow = row + rowOffset; //finding new indices of rows with +1 and -1
                 let newCol = col + colOffset; //finding new indices of cols with +1 and -1
                 while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) { //to limit the indices within 8*8 matrix
-                    validMoves.push([newRow, newCol]);
+                    if (!pieces[newRow][newCol]) {
+                        validMoves.push([newRow, newCol]);
+                    }
+                    else {
+                        if (pieces[newRow][newCol].color !== turn) {
+                            canRemovePieceArr.push([newRow, newCol]);
+                        }
+                        break; // Stop adding positions if there's a piece
+                    }
                     newRow += rowOffset;
                     newCol += colOffset;
                 }
             }
         }
-
+        setcanRemovePieces(canRemovePieceArr)
         return validMoves;
     };
 
@@ -76,7 +118,13 @@ const Board = () => {
             const newRow = row + rowOffset;
             const newCol = col + colOffset;
             if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-                validMoves.push([newRow, newCol]);
+                const targetPiece = pieces[newRow][newCol];
+                if (!targetPiece) {
+                    validMoves.push([newRow, newCol]);
+                } else if (targetPiece.color !== turn) {
+                    validMoves.push([newRow, newCol]);
+                    setcanRemovePieces(prevCanRemovePieces => [...prevCanRemovePieces, [newRow, newCol]]);
+                }
             }
         });
     
@@ -150,10 +198,12 @@ const Board = () => {
         if (row === selectedPiece.row && col === selectedPiece.col) {  //if we've clicked the already selected piece again
             setSelectedPiece(null);
             setValidPaths([]);
+            setcanRemovePieces([])
             return;
         }
         const selectedPieceType = pieces[selectedPiece.row][selectedPiece.col]?.type;
         if (isMoveValid(selectedPiece.row, selectedPiece.col, row, col, selectedPieceType) && selectedPieceType) {
+            setcanRemovePieces([]);
             const newPieces = [...pieces];
             newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
             newPieces[selectedPiece.row][selectedPiece.col] = null;
@@ -163,6 +213,7 @@ const Board = () => {
             setValidPaths([]);
         }
         else{
+            setcanRemovePieces([]);
             setSelectedPiece(null);
             setValidPaths([]);
         }
@@ -176,6 +227,7 @@ const Board = () => {
             piece={piece}
             selectedPiece={selectedPiece}
             validPaths={validPaths}
+            canRemovePieces={canRemovePieces}
             onClick={handleSquareClick}
         />
     };
