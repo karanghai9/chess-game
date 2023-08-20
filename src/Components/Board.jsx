@@ -7,6 +7,7 @@ const Board = () => {
     const [flip, setFlip] = useState(false);
     const [boardStyling, setBoardStyling] = useState('rotateAnimationWhite 2s forwards');
     const [validPaths, setValidPaths] = useState([]);
+    const [turn, setTurn] = useState('white');
 
     const [pieces, setPieces] = useState(
         [
@@ -112,7 +113,7 @@ const Board = () => {
 
         if (selectedPieceType === 'K') { // for knight
             if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
-                if(pieces[toRow][toCol]) {
+                if(pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
                     return false; //Square is already occupied by a piece
                 }
                 return true; //Square is unoccupied
@@ -125,7 +126,7 @@ const Board = () => {
                 (fromCol === toCol && isPathClear(fromRow, fromCol, toRow, toCol, 'vertical')) ||
                 (rowDiff === colDiff && isPathClear(fromRow, fromCol, toRow, toCol, 'diagonal'))
             ){
-                if(pieces[toRow][toCol]) {
+                if(pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
                     return false; //Square is already occupied by a piece
                 }
                 return true; //Square is unoccupied
@@ -136,9 +137,9 @@ const Board = () => {
 
     const handleSquareClick = (row, col) => {
         if (!selectedPiece) { //if there exists no pre-selected piece
-            if (pieces[row][col]) {
-              setSelectedPiece({ row, col });
-              const selectedPieceType = pieces[row][col]?.type;
+            if (pieces[row][col] && pieces[row][col].color === turn) {
+                setSelectedPiece({ row, col });
+                const selectedPieceType = pieces[row][col]?.type;
                 if (selectedPieceType) {
                     const validPaths = selectedPieceType === 'Q' ? getQueenMoves(row, col) : selectedPieceType === 'K' ? getKnightMoves(row, col) : [];
                     setValidPaths(validPaths);
@@ -157,6 +158,7 @@ const Board = () => {
             newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
             newPieces[selectedPiece.row][selectedPiece.col] = null;
             setPieces(newPieces);
+            setTurn(turn === 'white' ? 'black' : 'white');
             setSelectedPiece(null);
             setValidPaths([]);
         }
@@ -194,6 +196,7 @@ const Board = () => {
                 ))}
             </div>
             <div className='turn'>
+                {`${turn}'s turn`}
                 <button onClick={flipBoard} className="flipBoardButton">Flip Board</button>
             </div>
         </>
