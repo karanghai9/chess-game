@@ -99,6 +99,12 @@ const Board = () => {
             setValidPaths([]);
             return;
         }
+        const newPieces = [...pieces];
+        newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
+        newPieces[selectedPiece.row][selectedPiece.col] = null;
+        setPieces(newPieces);
+        setSelectedPiece(null);
+        setValidPaths([]);
     };
 
     const renderSquare = (row, col, piece) => {
