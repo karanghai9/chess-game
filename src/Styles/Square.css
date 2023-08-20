@@ -6,7 +6,6 @@
     align-items: center;
     border: 1px solid #ccc;
     cursor: pointer;
-    margin: 1px;
 }
 
 .chess-piece {
@@ -36,4 +35,9 @@
 
 .square.removablePiece {
     background-color: red !important;
+}
+
+.row:nth-child(even) .square:nth-child(odd):not(.valid-move),
+.row:nth-child(odd) .square:nth-child(even):not(.valid-move) {
+    background-color: darkgray;
 }

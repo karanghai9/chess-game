@@ -9,6 +9,8 @@ const Board = () => {
     const [validPaths, setValidPaths] = useState([]);
     const [turn, setTurn] = useState('white');
     const [canRemovePieces, setcanRemovePieces] = useState([]);
+    const [gameEnded, setGameEnded] = useState(false);
+    const [winner, setWinner] = useState(null);
 
     const [pieces, setPieces] = useState(
         [
@@ -108,12 +110,12 @@ const Board = () => {
 
     const getKnightMoves = (row, col) => {
         const validMoves = [];
-    
+
         const possibleMoves = [
             [-2, -1], [-2, 1], [-1, -2], [-1, 2],
             [1, -2], [1, 2], [2, -1], [2, 1]
         ];
-    
+
         possibleMoves.forEach(([rowOffset, colOffset]) => {
             const newRow = row + rowOffset;
             const newCol = col + colOffset;
@@ -127,7 +129,7 @@ const Board = () => {
                 }
             }
         });
-    
+
         return validMoves;
     };
 
@@ -161,7 +163,7 @@ const Board = () => {
 
         if (selectedPieceType === 'K') { // for knight
             if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
-                if(pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
+                if (pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
                     return false; //Square is already occupied by a piece
                 }
                 return true; //Square is unoccupied
@@ -173,8 +175,8 @@ const Board = () => {
                 (fromRow === toRow && isPathClear(fromRow, fromCol, toRow, toCol, 'horizontal')) ||
                 (fromCol === toCol && isPathClear(fromRow, fromCol, toRow, toCol, 'vertical')) ||
                 (rowDiff === colDiff && isPathClear(fromRow, fromCol, toRow, toCol, 'diagonal'))
-            ){
-                if(pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
+            ) {
+                if (pieces[toRow][toCol] && pieces[toRow][toCol].color === turn) {
                     return false; //Square is already occupied by a piece
                 }
                 return true; //Square is unoccupied
@@ -184,38 +186,52 @@ const Board = () => {
     };
 
     const handleSquareClick = (row, col) => {
-        if (!selectedPiece) { //if there exists no pre-selected piece
-            if (pieces[row][col] && pieces[row][col].color === turn) {
-                setSelectedPiece({ row, col });
-                const selectedPieceType = pieces[row][col]?.type;
-                if (selectedPieceType) {
-                    const validPaths = selectedPieceType === 'Q' ? getQueenMoves(row, col) : selectedPieceType === 'K' ? getKnightMoves(row, col) : [];
-                    setValidPaths(validPaths);
+        if (!gameEnded) {
+            if (!selectedPiece) { //if there exists no pre-selected piece
+                if (pieces[row][col] && pieces[row][col].color === turn) {
+                    setSelectedPiece({ row, col });
+                    const selectedPieceType = pieces[row][col]?.type;
+                    if (selectedPieceType) {
+                        const validPaths = selectedPieceType === 'Q' ? getQueenMoves(row, col) : selectedPieceType === 'K' ? getKnightMoves(row, col) : [];
+                        setValidPaths(validPaths);
+                    }
                 }
+                return;
             }
-            return;
-        }
-        if (row === selectedPiece.row && col === selectedPiece.col) {  //if we've clicked the already selected piece again
-            setSelectedPiece(null);
-            setValidPaths([]);
-            setcanRemovePieces([])
-            return;
-        }
-        const selectedPieceType = pieces[selectedPiece.row][selectedPiece.col]?.type;
-        if (isMoveValid(selectedPiece.row, selectedPiece.col, row, col, selectedPieceType) && selectedPieceType) {
-            setcanRemovePieces([]);
-            const newPieces = [...pieces];
-            newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
-            newPieces[selectedPiece.row][selectedPiece.col] = null;
-            setPieces(newPieces);
-            setTurn(turn === 'white' ? 'black' : 'white');
-            setSelectedPiece(null);
-            setValidPaths([]);
-        }
-        else{
-            setcanRemovePieces([]);
-            setSelectedPiece(null);
-            setValidPaths([]);
+            if (row === selectedPiece.row && col === selectedPiece.col) {  //if we've clicked the already selected piece again
+                setSelectedPiece(null);
+                setValidPaths([]);
+                setcanRemovePieces([])
+                return;
+            }
+            const selectedPieceType = pieces[selectedPiece.row][selectedPiece.col]?.type;
+            if (isMoveValid(selectedPiece.row, selectedPiece.col, row, col, selectedPieceType) && selectedPieceType) {
+                setcanRemovePieces([]);
+                const newPieces = [...pieces];
+                const capturedPiece = newPieces[row][col];
+                newPieces[row][col] = newPieces[selectedPiece.row][selectedPiece.col];
+                newPieces[selectedPiece.row][selectedPiece.col] = null;
+
+                if (selectedPieceType === 'Q' && capturedPiece?.type === 'Q' && capturedPiece?.color !== turn) {
+                    // Check if the move captures the opponent's queen
+                    setGameEnded(true);
+                    setWinner(turn === 'white' ? 'black' : 'white');
+                } else if (selectedPieceType === 'K' && capturedPiece?.type === 'Q' && capturedPiece?.color !== turn) {
+                    // Check if the move captures the opponent's queen
+                    setGameEnded(true);
+                    setWinner(turn === 'white' ? 'black' : 'white');
+                }
+
+                setPieces(newPieces);
+                setTurn(turn === 'white' ? 'black' : 'white');
+                setSelectedPiece(null);
+                setValidPaths([]);
+            }
+            else {
+                setcanRemovePieces([]);
+                setSelectedPiece(null);
+                setValidPaths([]);
+            }
         }
     };
 
@@ -248,7 +264,7 @@ const Board = () => {
                 ))}
             </div>
             <div className='turn'>
-                {`${turn}'s turn`}
+                {gameEnded ? `Game Over, ${winner === 'white' ? 'Black' : 'White'} won!` : `${turn}'s turn`}
                 <button onClick={flipBoard} className="flipBoardButton">Flip Board</button>
             </div>
         </>
