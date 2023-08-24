@@ -1,3 +1,8 @@
+# React App
+<p align="center">
+  <a href="https://react.dev" target="blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" width="320" alt="Nest Logo" /></a>
+</p>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
